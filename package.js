@@ -28,7 +28,7 @@ Package.onTest(function (api) {
     'test-helpers'
   ]);
   
-  api.addFiles('erasaur:server-session-tests.js', [
+  api.addFiles('server-session-tests.js', [
     'client', 'server'
   ]);
 });
