@@ -5,13 +5,30 @@ Package.describe({
   git: 'https://github.com/erasaur/server-session'
 });
 
-Package.onUse(function(api) {
+Package.onUse(function (api) {
   api.versionsFrom('1.0');
-  api.addFiles('erasaur:server-session.js');
+
+  api.use([
+    'underscore', 
+    'ddp', 
+    'mongo'
+  ], [ 'client', 'server' ]);
+
+  api.export('ServerSession');
+
+  api.addFiles('lib/server-session.js', [
+    'client', 'server'
+  ]);
 });
 
-Package.onTest(function(api) {
-  api.use('tinytest');
-  api.use('erasaur:server-session');
-  api.addFiles('erasaur:server-session-tests.js');
+Package.onTest(function (api) {
+  api.use([
+    'tinytest', 
+    'lib/server-session', 
+    'test-helpers'
+  ]);
+  
+  api.addFiles('erasaur:server-session-tests.js', [
+    'client', 'server'
+  ]);
 });
