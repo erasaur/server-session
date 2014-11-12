@@ -11,12 +11,12 @@ This is a repackaging of Matteo's [meteor-server-session](https://github.com/mat
 Naturally, the API is identical to that of Meteor ServerSession, except that `set` can only be called from the server.
 
 ```javascript
-ServerSession.set(key, value); // server only!
+ServerSession.set(key, value); // Should only be invoked on the server
 ServerSession.get(key);
 ServerSession.equals(key, expected, identical = true);
 ```
 
-Defining a condition to check before setting a value:
+You can also define a condition to check against before setting a value:
 ```javascript
 ServerSession.setCondition(function (key, value)); // Should only be invoked on the server
 ```
