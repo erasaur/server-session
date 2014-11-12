@@ -23,12 +23,12 @@ Package.onUse(function (api) {
 
 Package.onTest(function (api) {
   api.use([
+    'erasaur:server-session', 
     'tinytest', 
-    'lib/server-session', 
     'test-helpers'
   ]);
   
-  api.addFiles('server-session-tests.js', [
+  api.addFiles('tests/server-session-tests.js', [
     'client', 'server'
   ]);
 });
