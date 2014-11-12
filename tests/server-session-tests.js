@@ -98,3 +98,20 @@ if (Meteor.isServer) {
   });
 }
 
+Tinytest.add('ServerSession - disconnected', function (test) {
+  if (Meteor.isClient) {
+    Meteor.disconnect();
+  }
+
+  if (Meteor.isServer) {
+    Meteor.onConnection(function (connection) {
+      connection.onClose(function () {
+        ServerSession.set('keyD', 'value');
+        testDisconnected();
+      });
+    });
+  }
+  function testDisconnected () {
+    test.isTrue(ServerSession.get('keyD') === undefined || ServerSession.get('keyD') === null, 'Expected ServerSession to be undefined');
+  }
+});
