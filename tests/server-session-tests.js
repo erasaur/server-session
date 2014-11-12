@@ -1,91 +1,100 @@
-Tinytest.add('ServerSession - set', function (test) {
-  if (Meteor.isServer) {
+if (Meteor.isServer) {
+  Tinytest.add('ServerSession - set', function (test) {
     test.isUndefined(ServerSession.setCondition(function () {
       return true;
     }));
-  }
+    
+    test.throws(function () {
+      ServerSession.set();
+    }, Error, 'Expected key and value when using set');
 
-  test.throws(function () {
-    ServerSession.set();
-  }, Error, 'Should throw an error if no key and value are provided when using set');
+    test.isUndefined(ServerSession.set('key', 'value'));
+    test.equal('value', ServerSession.get('key'), 'Expected value to match ServerSession value');
 
-  test.isUndefined(ServerSession.set('testKey', 'testValue'));
-  test.equal('testValue', ServerSession.get('testKey'));
-  ServerSession.set('testKey');
-  test.isTrue(undefined == ServerSession.get('testKey') || null == ServerSession.get('testKey'));
-});
+    ServerSession.set('key');
+    test.isTrue(ServerSession.get('key') === undefined || ServerSession.get('key') === null, 'Expected ServerSession to be undefined');
+  });  
+}
 
 Tinytest.add('ServerSession - get', function (test) {
-  ServerSession.set('null', null);
-  ServerSession.set('aBool', true);
-  ServerSession.set('anInteger', 12345);
-  ServerSession.set('aString', 'meIzAString');
-  ServerSession.set('anArray', [1, 2, 3, ['4', '5', '6', [12, 23, 34]]]);
-  ServerSession.set('anObject', { 'keyOfObject' : 'value', 'keyOfObj' : {'a' : ['b', 'c'] } });
+  if (Meteor.isServer) {
+    ServerSession.set('null', null);
+    ServerSession.set('bool', true);
+    ServerSession.set('integer', 123);
+    ServerSession.set('string', 'wow');
+    ServerSession.set('array', [1, 2, 3, ['4', '5', '6', [12, 23, 34]]]);
+    ServerSession.set('object', { 'keyA': 'valueA', 'keyB': { 'a': ['b', 'c'] } })  
+  }
 
   test.equal(null, ServerSession.get('null'));
-  test.equal(true, ServerSession.get('aBool'));
-  test.equal(12345, ServerSession.get('anInteger'));
-  test.equal('meIzAString', ServerSession.get('aString'));
-  test.equal([1, 2, 3, ['4', '5', '6', [12, 23, 34]]], ServerSession.get('anArray'));
-  test.equal({ 'keyOfObject' : 'value', 'keyOfObj' : {'a' : ['b', 'c'] } }, ServerSession.get('anObject'));
+  test.equal(true, ServerSession.get('bool'));
+  test.equal(123, ServerSession.get('integer'));
+  test.equal('wow', ServerSession.get('string'));
+  test.equal([1, 2, 3, ['4', '5', '6', [12, 23, 34]]], ServerSession.get('array'));
+  test.equal({ 'keyA': 'valueA', 'keyB': { 'a': ['b', 'c'] } }, ServerSession.get('object'));
 });
 
 Tinytest.add('ServerSession - equals (identical)', function (test) {
-  ServerSession.set('null', null);
-  ServerSession.set('true', true);
-  ServerSession.set('54321', 54321);
-  ServerSession.set('aRandomString', 'aRandomString1');
-  ServerSession.set('array', [1, 2, 3, ['4', '5', '6', [11, 12, 31]]]);
-  ServerSession.set('object', { 'keyOfObject' : '_value'});
-  ServerSession.set('emptyObj', {});
-  ServerSession.set('emptyArray', []);
+  if (Meteor.isServer) {
+    ServerSession.set('nullB', null);
+    ServerSession.set('boolB', true);
+    ServerSession.set('integerB', 123);
+    ServerSession.set('arrayB', [1, 2, 3, ['4', '5', '6', [11, 12, 31]]]);
+    ServerSession.set('emptyObj', {});
+    ServerSession.set('emptyArray', []);
 
-  test.isTrue(ServerSession.equals('null', null));
-  test.isTrue(ServerSession.equals('true', true));
-  test.isTrue(ServerSession.equals('54321', 54321));
+    ServerSession.set('stringB', 'not what you expect');
+    ServerSession.set('objectB', { 'key': 'wups! not value' });    
+  }
+
+  test.isTrue(ServerSession.equals('nullB', null));
+  test.isTrue(ServerSession.equals('boolB', true));
+  test.isTrue(ServerSession.equals('integerB', 123));
+  test.isTrue(ServerSession.equals('arrayB', [1, 2, 3, ['4', '5', '6', [11, 12, 31]]]));
   test.isTrue(ServerSession.equals('emptyObj', {}));
   test.isTrue(ServerSession.equals('emptyArray', []));
-  test.isTrue(ServerSession.equals('array', [1, 2, 3, ['4', '5', '6', [11, 12, 31]]]));
 
   test.isFalse(ServerSession.equals('emptyObj', []));
   test.isFalse(ServerSession.equals('emptyArray', {}));
-  test.isFalse(ServerSession.equals('aRandomString', 'aRandomString'));
-  test.isFalse(ServerSession.equals('array', [1, 2, 3, ['4', '5', '6', [11, 12, 30]]]));
-  test.isFalse(ServerSession.equals('object', { 'keyOfObject' : 'value'}));
+  test.isFalse(ServerSession.equals('stringB', 'wow'));
+  test.isFalse(ServerSession.equals('arrayB', [1, 2, 3, ['4', '5', '6', [11, 12, 30]]]));
+  test.isFalse(ServerSession.equals('objectB', { 'key': 'value' }));
 });
 
 Tinytest.add('ServerSession - equals (not identical)', function (test) {
-  ServerSession.set('54321', 1);
-  ServerSession.set('null', null);
-  ServerSession.set('true', true);
-  ServerSession.set('aStringString', 'stringity');
+  if (Meteor.isServer) {
+    ServerSession.set('nullC', null);
+    ServerSession.set('boolC', true);
+    ServerSession.set('integerC', 1);
+    ServerSession.set('stringC', 'wow');  
+  }
 
-  test.isTrue(ServerSession.equals('null', undefined, false));
-  test.isTrue(ServerSession.equals('true', !null, false));
-  test.isTrue(ServerSession.equals('54321', true, false));
-  test.isFalse(ServerSession.equals('aStringString', 'stringity11', false));
+  test.isTrue(ServerSession.equals('nullC', undefined, false));
+  test.isTrue(ServerSession.equals('boolC', !null, false));
+  test.isTrue(ServerSession.equals('integerC', true, false));
+  test.isFalse(ServerSession.equals('stringC', 'much wow', false));
 });
 
 if (Meteor.isServer) {
-  Tinytest.add('ServerSession - Conditions', function (test) {
+  Tinytest.add('ServerSession - conditions', function (test) {
     test.isUndefined(ServerSession.setCondition(function () {
       return false;
     }));
 
     test.throws(function () {
-      ServerSession.set('theKey', { foo : 'bar' });
+      ServerSession.set('keyB', { foo: 'bar' });
     }, Meteor.Error);
 
-    test.isFalse(ServerSession.equals('theKey', { foo : 'bar' }));
+    test.isFalse(ServerSession.equals('keyB', { foo: 'bar' }));
 
-    // Also test with return true
+    // also test with return true
     test.isUndefined(ServerSession.setCondition(function () {
       return true;
     }));
     
-    ServerSession.set('newKey', { foo : 'bar' });
-    test.equal('bar', ServerSession.get('newKey').foo);
-    ServerSession.set('newKey', undefined);
+    ServerSession.set('keyC', { foo: 'bar' });
+    test.equal('bar', ServerSession.get('keyC').foo);
+    ServerSession.set('keyC', undefined);
   });
 }
+
