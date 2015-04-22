@@ -1,7 +1,7 @@
 Package.describe({
   name: 'erasaur:server-session',
   summary: 'Meteor Server-side Sessions, similar to the typical Client Session',
-  version: '0.0.3',
+  version: '0.0.4',
   git: 'https://github.com/erasaur/server-session'
 });
 
